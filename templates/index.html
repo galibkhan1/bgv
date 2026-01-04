@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Verification Portal</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            background: #f5f7fa;
+        }
+        
+        nav {
+            background-color: #004080;
+            display: flex;
+            padding: 12px 20px;
+            align-items: center;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        nav .nav-left {
+            display: flex;
+            gap: 20px;
+        }
+        nav button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        nav button:hover,
+        nav button.active {
+            background-color: #0066cc;
+        }
+        nav .logout-btn {
+            background-color: #dc3545;
+        }
+        nav .logout-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #004080;
+        }
+        input[type="text"], input[type="number"], input[type="file"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button.verify-btn {
+            background-color: #004080;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button.verify-btn:hover {
+            background-color: #0066cc;
+        }
+        #result, #bankResult, #digilockerDocsResult, #esignResult {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            color: #333;
+            background: #eef6ff;
+            padding: 12px;
+            border-radius: 4px;
+            min-height: 60px;
+        }
+        
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+       
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        pre {
+            white-space: pre-wrap;
+            margin: 0;
+        }
+      
+        #digilockerRequestInfo a,
+        #esignRequestInfo a {
+            display: inline-block;
+            margin-top: 8px;
+            color: #004080;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        #digilockerRequestInfo a:hover,
+        #esignRequestInfo a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <button id="btn-pan" class="active">PAN Verification</button>
+            <button id="btn-bank">Bank Verification</button>
+            <button id="btn-digilocker">Adhaar Verification</button>
+        </div>
+        <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div id="page-pan" class="page active">
+            <h2>PAN Verification Form</h2>
+            <input type="text" id="panInput" placeholder="Enter PAN number (e.g., ABCDE1234F)" maxlength="10" />
+            <button class="verify-btn" id="verifyPanBtn">Verify</button>
+            <div id="result"></div>
+        </div>
+
+      
+        <div id="page-bank" class="page">
+            <h2>Bank Verification Form</h2>
+            <input type="text" id="accountNumber" placeholder="Enter Account Number" />
+            <input type="text" id="ifscCode" placeholder="Enter IFSC Code" maxlength="11" />
+            <button class="verify-btn" id="verifyBankBtn">Verify</button>
+            <div id="bankResult"></div>
+        </div>
+
+      
+        <div id="page-digilocker" class="page">
+            <h2>Adhaar Verification Form</h2>
+            <input type="text" id="aadhaarNumber" ... />
+            <button class="verify-btn" id="startDigilockerBtn">Start Adharcard Consent</button>
+            
+            <div id="digilockerRequestInfo" style="display:none;"> 
+                <p><span id="digilockerRequestId"></span></p> 
+                <button class="verify-btn" id="checkStatusBtn">Check Request Status</button>  
+            </div>
+            
+            <div id="digilockerDocsResult"></div>  
+        </div>
+
+     
+        <div id="page-e-sign" class="page">
+            <h2>E-Sign Document</h2>
+            <input type="file" id="esignFileInput" accept="application/pdf" />
+            <input type="text" id="esignAadhaar" placeholder="Enter Aadhaar Number (12 digits)" maxlength="12" required/>
+            <input type="text" id="esignMobile" placeholder="Enter Mobile Number (10 digits)" maxlength="10" required />
+            <button class="verify-btn" id="startESignBtn">Start E-Sign</button>
+
+            <div id="esignRequestInfo" style="margin-top:20px; display:none;">
+                <p><strong>Request ID:</strong> <span id="esignRequestId"></span></p>
+                <p><a href="#" target="_blank" id="esignLoginUrl">Open e-Sign Login</a></p>
+                <button class="verify-btn" id="checkESignStatusBtn" style="width:auto; padding: 8px 16px;">Check E-Sign Status</button>
+            </div>
+
+            <div id="esignResult"></div>
+        </div>
+    </div>
+
+<script src="static/script.js"></script>
+</body>
+</html>
