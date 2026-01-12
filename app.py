@@ -18,6 +18,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import time
 
+# Import Aadhaar OCR module
+from aadhaar_ocr import validate_and_extract_aadhaar
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -80,6 +83,21 @@ class AadhaarVerification(Base):
     digilocker_request_id = Column(String(255))
     s3_file_key = Column(String(500))
     s3_file_url = Column(Text)
+    verification_data = Column(JSON)  # Store full API response
+    verified_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class BankVerification(Base):
+    __tablename__ = 'bank_verifications'
+    
+    id = Column(Integer, primary_key=True)
+    user_email = Column(String(255), nullable=False)
+    account_number = Column(String(50), nullable=False)
+    ifsc_code = Column(String(11), nullable=False)
+    account_holder_name = Column(String(255))
+    bank_name = Column(String(255))
+    branch_name = Column(String(255))
+    status = Column(String(50))  # success, failed
     verification_data = Column(JSON)  # Store full API response
     verified_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -452,6 +470,17 @@ def aadhaar_verification() -> str:
     return render_template('aadhaar_verification.html')
 
 
+@app.route('/bank-verification')
+@login_required
+def bank_verification() -> str:
+    # Check if consent has been given
+    if not session.get('consent_given', False):
+        return redirect(url_for('consent'))
+    
+    logger.info("[BANK VERIFICATION] Serving Bank verification page")
+    return render_template('bank_verification.html')
+
+
 @app.route('/verify-pan', methods=['POST'])
 @login_required
 def verify_pan() -> Any:
@@ -518,6 +547,51 @@ def verify_bank() -> Any:
     }
     logger.info(f"[BANK] Verifying Bank details IFSC: {ifsc}, Account: {account_number}")
     result = call_setu_api(BANK_API_URL, payload, BANK_HEADERS)
+    
+    # Save to database if verification successful
+    if db_session and result.get('data'):
+        try:
+            user_email = session.get('user', 'unknown')
+            bank_data = result.get('data', {})
+            
+            # Extract data from various possible field names
+            holder_name = (
+                bank_data.get('account_holder_name') or 
+                bank_data.get('name') or 
+                bank_data.get('accountHolderName') or
+                'N/A'
+            )
+            bank_name = (
+                bank_data.get('bank_name') or 
+                bank_data.get('bankName') or 
+                bank_data.get('bank') or
+                'N/A'
+            )
+            branch = (
+                bank_data.get('branch') or 
+                bank_data.get('branch_name') or 
+                bank_data.get('branchName') or
+                'N/A'
+            )
+            
+            bank_verification = BankVerification(
+                user_email=user_email,
+                account_number=account_number,
+                ifsc_code=ifsc,
+                account_holder_name=holder_name,
+                bank_name=bank_name,
+                branch_name=branch,
+                status=result.get('status', 'unknown'),
+                verification_data=result  # Store complete JSON
+            )
+            
+            db_session.add(bank_verification)
+            db_session.commit()
+            logger.info(f"[DB] Bank verification saved for user: {user_email}")
+        except Exception as e:
+            logger.error(f"[DB] Failed to save Bank verification: {e}")
+            db_session.rollback()
+    
     return jsonify(result)
 
 
@@ -901,7 +975,7 @@ def initiate_esign() -> Any:
 @app.route('/upload-aadhaar', methods=['POST'])
 @login_required
 def upload_aadhaar():
-    """Handle manual Aadhaar card upload and save to S3"""
+    """Handle manual Aadhaar card upload with OCR validation and save to S3"""
     try:
         if 'aadhaar_file' not in request.files:
             return jsonify({'success': False, 'message': 'No file uploaded'}), 400
@@ -918,6 +992,31 @@ def upload_aadhaar():
         if file_ext not in allowed_extensions:
             return jsonify({'success': False, 'message': 'Invalid file type'}), 400
         
+        # Read file content for OCR processing
+        file.seek(0)
+        file_content = file.read()
+        
+        # Process document with OCR to validate and extract information
+        logger.info("[AADHAAR OCR] Starting document validation and extraction...")
+        is_valid, ocr_result = validate_and_extract_aadhaar(file_content, file.filename)
+        
+        if not is_valid or not ocr_result.get('is_aadhaar'):
+            error_msg = ocr_result.get('error', 'Document is not a valid Aadhaar card')
+            logger.warning(f"[AADHAAR OCR] Validation failed: {error_msg}")
+            return jsonify({
+                'success': False, 
+                'message': error_msg,
+                'ocr_details': ocr_result
+            }), 400
+        
+        # Extract OCR data
+        aadhaar_number = ocr_result.get('aadhaar_number')
+        full_name = ocr_result.get('name')
+        dob = ocr_result.get('dob')
+        gender = ocr_result.get('gender')
+        
+        logger.info(f"[AADHAAR OCR] Extracted - Number: {aadhaar_number}, Name: {full_name}, DOB: {dob}, Gender: {gender}")
+        
         # Get user email
         user_email = session.get('user', 'unknown')
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -932,10 +1031,6 @@ def upload_aadhaar():
         # Try to upload to S3
         if s3_client and S3_BUCKET_NAME:
             try:
-                # Read file content
-                file.seek(0)
-                file_content = file.read()
-                
                 # Determine content type
                 content_type_map = {
                     'jpg': 'image/jpeg',
@@ -945,17 +1040,38 @@ def upload_aadhaar():
                 }
                 content_type = content_type_map.get(file_ext, 'application/octet-stream')
                 
+                # Prepare metadata (S3 metadata must be ASCII only)
+                # Encode non-ASCII characters to avoid S3 metadata errors
+                import base64
+                metadata = {
+                    'user_email': user_email,
+                    'document_type': 'aadhaar',
+                    'upload_time': timestamp,
+                    'ocr_extracted': 'true'
+                }
+                
+                # Only add ASCII-safe metadata
+                if aadhaar_number and aadhaar_number.isascii():
+                    metadata['aadhaar_number'] = aadhaar_number
+                if full_name:
+                    # Base64 encode non-ASCII names for metadata
+                    try:
+                        if full_name.isascii():
+                            metadata['full_name'] = full_name
+                        else:
+                            # Store base64 encoded for non-ASCII
+                            encoded_name = base64.b64encode(full_name.encode('utf-8')).decode('ascii')
+                            metadata['full_name_encoded'] = encoded_name
+                    except:
+                        pass
+                
                 # Upload to S3
                 s3_client.put_object(
                     Bucket=S3_BUCKET_NAME,
                     Key=s3_key,
                     Body=file_content,
                     ContentType=content_type,
-                    Metadata={
-                        'user_email': user_email,
-                        'document_type': 'aadhaar',
-                        'upload_time': timestamp
-                    }
+                    Metadata=metadata
                 )
                 
                 # Generate S3 URL
@@ -963,34 +1079,60 @@ def upload_aadhaar():
                 
                 logger.info(f"[AADHAAR UPLOAD] File uploaded to S3: {s3_key} for user: {user_email}")
                 
-                # Store upload info in session
+                # Store upload info and OCR data in session
                 session['aadhaar_uploaded'] = True
                 session['aadhaar_s3_key'] = s3_key
                 session['aadhaar_s3_url'] = file_url
                 session['aadhaar_upload_time'] = timestamp
+                session['aadhaar_ocr_data'] = {
+                    'aadhaar_number': aadhaar_number,
+                    'name': full_name,
+                    'dob': dob,
+                    'gender': gender
+                }
                 
-                # Save to database
+                # Save to database with OCR extracted data
                 if db_session:
                     try:
                         aadhaar_verification = AadhaarVerification(
                             user_email=user_email,
+                            masked_number=f"XXXX-XXXX-{aadhaar_number[-4:]}" if aadhaar_number else None,
+                            full_name=full_name,
+                            date_of_birth=dob,
+                            gender=gender,
                             verification_method='manual_upload',
                             s3_file_key=s3_key,
                             s3_file_url=file_url,
-                            verification_data={'upload_method': 'manual', 'file_type': file_ext}
+                            verification_data={
+                                'upload_method': 'manual', 
+                                'file_type': file_ext,
+                                'ocr_extracted': True,
+                                'aadhaar_number': aadhaar_number,
+                                'name': full_name,
+                                'dob': dob,
+                                'gender': gender,
+                                'raw_ocr_text': ocr_result.get('raw_text', '')[:500]  # Store first 500 chars
+                            }
                         )
                         db_session.add(aadhaar_verification)
                         db_session.commit()
-                        logger.info(f"[DB] Manual Aadhaar upload saved for user: {user_email}")
+                        logger.info(f"[DB] Manual Aadhaar upload with OCR data saved for user: {user_email}")
                     except Exception as e:
                         logger.error(f"[DB] Failed to save manual Aadhaar upload: {e}")
                         db_session.rollback()
                 
                 return jsonify({
                     'success': True,
-                    'message': 'Aadhaar uploaded successfully to S3',
+                    'message': 'Aadhaar uploaded and validated successfully',
                     's3_key': s3_key,
-                    'url': file_url
+                    'url': file_url,
+                    'extracted_data': {
+                        'aadhaar_number': aadhaar_number,
+                        'name': full_name,
+                        'dob': dob,
+                        'gender': gender,
+                        'masked_number': f"XXXX-XXXX-{aadhaar_number[-4:]}" if aadhaar_number else None
+                    }
                 })
                 
             except ClientError as e:
@@ -999,29 +1141,49 @@ def upload_aadhaar():
                 pass
         
         # Fallback: Save locally if S3 is not configured or upload failed
+        from werkzeug.utils import secure_filename
         upload_dir = os.path.join(os.getcwd(), 'uploads', 'aadhaar')
         os.makedirs(upload_dir, exist_ok=True)
         
         filename = secure_filename(f"{safe_email}_aadhaar_{timestamp}.{file_ext}")
         filepath = os.path.join(upload_dir, filename)
         
-        # Reset file pointer and save locally
-        file.seek(0)
-        file.save(filepath)
+        # Save file locally
+        with open(filepath, 'wb') as f:
+            f.write(file_content)
         
-        # Store upload info in session
+        # Store upload info and OCR data in session
         session['aadhaar_uploaded'] = True
         session['aadhaar_file_path'] = filepath
         session['aadhaar_upload_time'] = timestamp
+        session['aadhaar_ocr_data'] = {
+            'aadhaar_number': aadhaar_number,
+            'name': full_name,
+            'dob': dob,
+            'gender': gender
+        }
         
-        # Save to database
+        # Save to database with OCR data
         if db_session:
             try:
                 aadhaar_verification = AadhaarVerification(
                     user_email=user_email,
+                    masked_number=f"XXXX-XXXX-{aadhaar_number[-4:]}" if aadhaar_number else None,
+                    full_name=full_name,
+                    date_of_birth=dob,
+                    gender=gender,
                     verification_method='manual_upload',
                     s3_file_key=filename,
-                    verification_data={'upload_method': 'manual_local', 'file_type': file_ext, 'file_path': filepath}
+                    verification_data={
+                        'upload_method': 'manual_local', 
+                        'file_type': file_ext, 
+                        'file_path': filepath,
+                        'ocr_extracted': True,
+                        'aadhaar_number': aadhaar_number,
+                        'name': full_name,
+                        'dob': dob,
+                        'gender': gender
+                    }
                 )
                 db_session.add(aadhaar_verification)
                 db_session.commit()
@@ -1034,8 +1196,15 @@ def upload_aadhaar():
         
         return jsonify({
             'success': True,
-            'message': 'Aadhaar uploaded successfully (local storage)',
-            'filename': filename
+            'message': 'Aadhaar uploaded and validated successfully (local storage)',
+            'filename': filename,
+            'extracted_data': {
+                'aadhaar_number': aadhaar_number,
+                'name': full_name,
+                'dob': dob,
+                'gender': gender,
+                'masked_number': f"XXXX-XXXX-{aadhaar_number[-4:]}" if aadhaar_number else None
+            }
         })
         
     except Exception as e:
@@ -1054,4 +1223,15 @@ def server_error(e):
 
 
 if __name__ == "__main__":
+    # Pre-load OCR reader on startup to avoid delay on first upload
+    logger.info("[STARTUP] Pre-loading EasyOCR models...")
+    try:
+        from aadhaar_ocr import get_ocr_reader
+        get_ocr_reader()  # Initialize the reader during startup
+        logger.info("[STARTUP] ✓ OCR models loaded successfully")
+    except Exception as e:
+        logger.warning(f"[STARTUP] Could not pre-load OCR models: {e}")
+        logger.info("[STARTUP] OCR will be loaded on first document upload")
+    
+    logger.info("[STARTUP] Starting Flask application...")
     app.run(debug=True, port=1000)
