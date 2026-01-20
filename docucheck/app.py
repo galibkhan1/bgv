@@ -1024,7 +1024,16 @@ def create_digilocker_request():
     payload = {
         "redirectUrl": REDIRECT_URL,
         "consent": "Y",
-        "types": ["PAN_CARD", "AADHAAR", "DL"] 
+        "types": [
+            "PAN_CARD", 
+            "AADHAAR", 
+            "DL",
+            "SSCMRK",   # 10th Marksheet
+            "HSCMRK",   # 12th Marksheet
+            "DIGCER",   # Degree Certificate
+            "PGCER",    # Post Graduate Certificate
+            "DIGMRK"    # Degree Marksheet
+        ] 
     }
 
     logger.info(f"[DL] Creating DigiLocker request: {payload}")
@@ -1060,10 +1069,11 @@ def create_digilocker_request():
 def digilocker_callback():
     request_id = request.args.get("id")
     success = request.args.get("success")
+    scope = request.args.get("scope", "")  # Get consented document types
     
     success_bool = success and success.lower() == "true"
 
-    logger.info(f"[DL CALLBACK] request_id={request_id}, success={success}")
+    logger.info(f"[DL CALLBACK] request_id={request_id}, success={success}, scope={scope}")
 
     if not request_id:
         abort(400, "Missing request ID")
@@ -1074,11 +1084,22 @@ def digilocker_callback():
         session['digilocker_error'] = msg
         return redirect(url_for('aadhaar_verification'))
 
-    # Store the request ID in session for later retrieval
+    # Parse and store the consented scope
+    # Scope comes as "ADHAR+PANCR+DRVLC" format
+    consented_docs = []
+    if scope:
+        # Split by + and decode URL encoding
+        from urllib.parse import unquote
+        scope_decoded = unquote(scope)
+        consented_docs = [doc.strip() for doc in scope_decoded.split('+') if doc.strip()]
+        logger.info(f"[DL CALLBACK] Parsed consented documents: {consented_docs}")
+    
+    # Store the request ID and scope in session
     session['digilocker_request_id'] = request_id
     session['digilocker_success'] = True
+    session['digilocker_scope'] = consented_docs
     
-    logger.info(f"[DL CALLBACK] Login successful, redirecting to Aadhaar verification page")
+    logger.info(f"[DL CALLBACK] Login successful, user consented to {len(consented_docs)} document types")
     return redirect(url_for('aadhaar_verification'))
 
 
@@ -1206,11 +1227,31 @@ def get_digilocker_request_status() -> Any:
         except Exception as e:
             logger.error(f"[DL] Aadhaar fetch error: {e}")
 
-       
-        consented_documents = status_data.get("scope", [])
-        logger.info(f"[DL] User consented scope: {consented_documents}")
+        # Get consented documents from session (stored during callback)
+        # The status API doesn't return the scope, it was in the callback URL
+        consented_documents = session.get('digilocker_scope', [])
+        logger.info(f"[DL] User consented scope from session: {consented_documents}")
+        
+        # If not in session, try to get from status_data (some APIs might return it)
+        if not consented_documents:
+            consented_documents = status_data.get("scope", [])
+            logger.info(f"[DL] Using scope from API response: {consented_documents}")
 
         if consented_documents:
+            # Map common document type codes to API docTypes
+            doc_type_mapping = {
+                'ADHAR': 'AADHAAR',
+                'PANCR': 'PAN_CARD', 
+                'DRVLC': 'DL',
+                'SSCMRK': 'SSCMRK',
+                'HSCMRK': 'HSCMRK',
+                'DIGCER': 'DIGCER',
+                'DIGMRK': 'DIGMRK',
+                'PGCER': 'PGCER',
+                'PGMRK': 'PGMRK'
+            }
+            
+            # Fetch catalog to get document details
             catalog_url = f"{DIGILOCKER_BASE_URL}/documents"
             catalog_res = requests.get(catalog_url, headers=DIGILOCKER_HEADERS, timeout=10)
             catalog_res.raise_for_status()
@@ -1218,41 +1259,99 @@ def get_digilocker_request_status() -> Any:
             catalog_list = catalog_res.json().get("documents", [])
             logger.info(f"[DL] Catalog loaded: {len(catalog_list)} documents")
 
+            # Match consented documents with catalog
             user_doc_defs = []
-            for d in catalog_list:
-                doc_type = (
-                    d.get("docType") or
-                    d.get("documentType") or
-                    d.get("documentIdentifier")
-                )
-                if doc_type in consented_documents:
-                    d["docType"] = doc_type
-                    user_doc_defs.append(d)
+            for consented_code in consented_documents:
+                # Map the consented code to API docType
+                api_doc_type = doc_type_mapping.get(consented_code, consented_code)
+                
+                # Find matching document in catalog
+                for d in catalog_list:
+                    catalog_doc_type = (
+                        d.get("docType") or
+                        d.get("documentType") or
+                        d.get("documentIdentifier")
+                    )
+                    # Check both the original code and mapped type
+                    if catalog_doc_type == api_doc_type or catalog_doc_type == consented_code:
+                        d["docType"] = catalog_doc_type
+                        user_doc_defs.append(d)
+                        logger.info(f"[DL] Matched consented '{consented_code}' to catalog '{catalog_doc_type}'")
+                        break
+            
+            logger.info(f"[DL] Found {len(user_doc_defs)} documents to fetch")
 
             fetched_docs = []
 
             for doc_def in user_doc_defs:
+                doc_type = doc_def["docType"]
+                
+                # Prepare parameters - get user data from session/database
+                params = {}
+                user_email = session.get('user', 'unknown')
+                
+                # For PAN Card - get from database
+                if doc_type == 'PANCR' and db_session:
+                    try:
+                        pan_verification = db_session.query(PANVerification).filter_by(
+                            user_email=user_email
+                        ).order_by(PANVerification.created_at.desc()).first()
+                        
+                        if pan_verification:
+                            params = {
+                                "panno": pan_verification.pan_number,
+                                "PANFullName": pan_verification.full_name
+                            }
+                            logger.info(f"[DL] Using PAN data: {pan_verification.pan_number}")
+                    except Exception as e:
+                        logger.error(f"[DL] Failed to get PAN data: {e}")
+                
+                # For Driving License - try without parameters (DigiLocker might have it stored)
+                elif doc_type == 'DRVLC':
+                    logger.info(f"[DL] Attempting to fetch DL from DigiLocker storage")
+                    # Try without parameters first - user might have it stored in DigiLocker
+                    params = {}
+                
                 payload = {
-                    "docType": doc_def["docType"],
+                    "docType": doc_type,
                     "orgId": doc_def.get("orgId"),
-                    "format": "pdf",
-                    "consent": "Y",
-                    "parameters": doc_def.get("parameters", {})
+                    "format": "json",  # Use JSON to get structured data instead of PDF
+                    "consent": "Y"
                 }
+                
+                # Only add parameters if we have them
+                if params:
+                    payload["parameters"] = params
 
                 fetch_url = f"{DIGILOCKER_BASE_URL}/{request_id}/document"
-                logger.info(f"[DL] Fetching document: {payload}")
+                logger.info(f"[DL] Fetching {doc_type} document with payload: {payload}")
 
-                fetch_res = requests.post(
-                    fetch_url, json=payload, headers=DIGILOCKER_HEADERS, timeout=20
-                )
-
-                if fetch_res.status_code == 200:
-                    fetched_docs.append(fetch_res.json())
-                else:
-                    logger.warning(f"[DL] Document fetch failed: {fetch_res.text}")
+                try:
+                    fetch_res = requests.post(
+                        fetch_url, json=payload, headers=DIGILOCKER_HEADERS, timeout=20
+                    )
+                    
+                    logger.info(f"[DL] {doc_type} fetch status: {fetch_res.status_code}")
+                    
+                    if fetch_res.status_code == 200:
+                        doc_data = fetch_res.json()
+                        logger.info(f"[DL] {doc_type} response keys: {list(doc_data.keys()) if isinstance(doc_data, dict) else 'not a dict'}")
+                        logger.info(f"[DL] {doc_type} full response: {doc_data}")
+                        
+                        # Add document type info
+                        doc_data['_docType'] = doc_type
+                        doc_data['_docName'] = doc_def.get('name', doc_type)
+                        
+                        fetched_docs.append(doc_data)
+                        logger.info(f"[DL] ✓ Successfully fetched {doc_type}")
+                    else:
+                        logger.warning(f"[DL] {doc_type} fetch failed ({fetch_res.status_code}): {fetch_res.text}")
+                        
+                except Exception as e:
+                    logger.error(f"[DL] Error fetching {doc_type}: {e}")
 
             normalized["documents"] = fetched_docs
+            logger.info(f"[DL] Total documents fetched: {len(fetched_docs)}")
 
         # Save Aadhaar verification to database
         if db_session and normalized.get("aadhaar"):
@@ -1373,6 +1472,409 @@ def fetch_all_documents():
             continue
 
     return jsonify(all_docs)
+
+
+# =====================================================
+# DIGILOCKER - Following Setu's 3-Step Flow
+# =====================================================
+
+@app.route('/digilocker/list-documents', methods=['POST'])
+@login_required
+def list_digilocker_documents():
+    """
+    Step 2: Get List of all docs available after user completes consent
+    Call this after user completes the DigiLocker consent journey
+    """
+    data = request.json or {}
+    request_id = data.get('requestId')
+    
+    if not request_id:
+        abort(400, description="Request ID is required")
+    
+    logger.info(f"[DL LIST] Fetching document list for request ID: {request_id}")
+    
+    try:
+        # Get the request status to check if authenticated
+        status_url = f"{DIGILOCKER_BASE_URL}/{request_id}/status"
+        status_res = requests.get(status_url, headers=DIGILOCKER_HEADERS, timeout=10)
+        status_res.raise_for_status()
+        status_data = status_res.json()
+        
+        if status_data.get("status") != "authenticated":
+            return jsonify({
+                'success': False,
+                'message': 'User has not completed authentication',
+                'status': status_data.get("status")
+            }), 400
+        
+        # Get the list of documents user consented to
+        consented_documents = status_data.get("scope", [])
+        logger.info(f"[DL LIST] User consented to: {consented_documents}")
+        
+        if not consented_documents:
+            return jsonify({
+                'success': False,
+                'message': 'No documents consented by user',
+                'documents': []
+            })
+        
+        # Fetch the document catalog
+        catalog_url = f"{DIGILOCKER_BASE_URL}/documents"
+        catalog_res = requests.get(catalog_url, headers=DIGILOCKER_HEADERS, timeout=10)
+        catalog_res.raise_for_status()
+        
+        all_documents = catalog_res.json().get("documents", [])
+        logger.info(f"[DL LIST] Total documents in catalog: {len(all_documents)}")
+        
+        # Filter to only show documents user has access to
+        available_documents = []
+        for doc in all_documents:
+            doc_type = doc.get("docType") or doc.get("documentType") or doc.get("documentIdentifier")
+            if doc_type in consented_documents:
+                available_documents.append({
+                    'docType': doc_type,
+                    'name': doc.get('name') or doc.get('description', doc_type),
+                    'orgId': doc.get('orgId'),
+                    'parameters': doc.get('parameters', {}),
+                    'description': doc.get('description', '')
+                })
+        
+        logger.info(f"[DL LIST] Available documents: {len(available_documents)}")
+        
+        return jsonify({
+            'success': True,
+            'requestId': request_id,
+            'status': status_data.get("status"),
+            'documents': available_documents,
+            'documentCount': len(available_documents)
+        })
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"[DL LIST] API error: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to fetch document list',
+            'error': str(e)
+        }), 500
+
+
+@app.route('/digilocker/fetch-document', methods=['POST'])
+@login_required
+def fetch_digilocker_document():
+    """
+    Step 3: Fetch a specific document by docType
+    Supports PDF and JSON formats
+    """
+    data = request.json or {}
+    request_id = data.get('requestId')
+    doc_type = data.get('docType')
+    doc_format = data.get('format', 'pdf').lower()  # pdf or json
+    org_id = data.get('orgId')
+    parameters = data.get('parameters', {})
+    
+    if not request_id or not doc_type:
+        abort(400, description="Request ID and docType are required")
+    
+    if doc_format not in ['pdf', 'json']:
+        abort(400, description="Format must be 'pdf' or 'json'")
+    
+    logger.info(f"[DL FETCH] Fetching document - Type: {doc_type}, Format: {doc_format}")
+    
+    try:
+        # Prepare payload for document fetch
+        payload = {
+            "docType": doc_type,
+            "format": doc_format,
+            "consent": "Y"
+        }
+        
+        if org_id:
+            payload["orgId"] = org_id
+        
+        if parameters:
+            payload["parameters"] = parameters
+        
+        # Fetch the document
+        fetch_url = f"{DIGILOCKER_BASE_URL}/{request_id}/document"
+        logger.info(f"[DL FETCH] POST {fetch_url}")
+        logger.info(f"[DL FETCH] Payload: {payload}")
+        
+        fetch_res = requests.post(
+            fetch_url,
+            json=payload,
+            headers=DIGILOCKER_HEADERS,
+            timeout=30
+        )
+        
+        logger.info(f"[DL FETCH] Response status: {fetch_res.status_code}")
+        
+        fetch_res.raise_for_status()
+        doc_data = fetch_res.json()
+        
+        # Extract useful information from response
+        result = {
+            'success': True,
+            'docType': doc_type,
+            'format': doc_format,
+            'data': doc_data
+        }
+        
+        # If PDF, the response typically contains a base64 encoded file or URL
+        if doc_format == 'pdf':
+            if 'file' in doc_data:
+                result['fileData'] = doc_data['file']
+            if 'url' in doc_data:
+                result['fileUrl'] = doc_data['url']
+        
+        # If JSON, extract structured data
+        elif doc_format == 'json':
+            result['structuredData'] = doc_data
+        
+        logger.info(f"[DL FETCH] Successfully fetched {doc_type}")
+        
+        # Optionally save to database
+        if db_session:
+            try:
+                user_email = session.get('user', 'unknown')
+                # You can create a DigiLockerDocument model to store fetched documents
+                # For now, just log
+                logger.info(f"[DL FETCH] Document fetched for user: {user_email}")
+            except Exception as e:
+                logger.error(f"[DB] Failed to log document fetch: {e}")
+        
+        return jsonify(result)
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"[DL FETCH] API error: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            logger.error(f"[DL FETCH] Error response: {e.response.text}")
+        
+        return jsonify({
+            'success': False,
+            'message': f'Failed to fetch document: {doc_type}',
+            'error': str(e)
+        }), 500
+
+
+@app.route('/digilocker/fetch-multiple', methods=['POST'])
+@login_required
+def fetch_multiple_documents():
+    """
+    Convenience endpoint to fetch multiple documents at once
+    """
+    data = request.json or {}
+    request_id = data.get('requestId')
+    doc_types = data.get('docTypes', [])  # List of docType strings
+    doc_format = data.get('format', 'pdf')
+    
+    if not request_id or not doc_types:
+        abort(400, description="Request ID and docTypes array are required")
+    
+    logger.info(f"[DL MULTI] Fetching {len(doc_types)} documents")
+    
+    results = []
+    errors = []
+    
+    for doc_type in doc_types:
+        try:
+            payload = {
+                "docType": doc_type,
+                "format": doc_format,
+                "consent": "Y"
+            }
+            
+            fetch_url = f"{DIGILOCKER_BASE_URL}/{request_id}/document"
+            fetch_res = requests.post(
+                fetch_url,
+                json=payload,
+                headers=DIGILOCKER_HEADERS,
+                timeout=30
+            )
+            
+            if fetch_res.status_code == 200:
+                doc_data = fetch_res.json()
+                results.append({
+                    'docType': doc_type,
+                    'success': True,
+                    'data': doc_data
+                })
+                logger.info(f"[DL MULTI] ✓ Fetched {doc_type}")
+            else:
+                errors.append({
+                    'docType': doc_type,
+                    'error': fetch_res.text
+                })
+                logger.warning(f"[DL MULTI] ✗ Failed to fetch {doc_type}: {fetch_res.status_code}")
+                
+        except Exception as e:
+            errors.append({
+                'docType': doc_type,
+                'error': str(e)
+            })
+            logger.error(f"[DL MULTI] ✗ Error fetching {doc_type}: {e}")
+    
+    return jsonify({
+        'success': len(errors) == 0,
+        'requestId': request_id,
+        'fetched': len(results),
+        'failed': len(errors),
+        'results': results,
+        'errors': errors
+    })
+
+
+@app.route('/digilocker/fetch-marksheets', methods=['POST'])
+@login_required
+def fetch_marksheets():
+    """
+    Dedicated endpoint to fetch all available marksheets
+    Fetches 10th, 12th, Degree, and PG marksheets/certificates
+    """
+    data = request.json or {}
+    request_id = data.get('requestId')
+    doc_format = data.get('format', 'pdf')  # pdf or json
+    
+    if not request_id:
+        abort(400, description="Request ID is required")
+    
+    # Common marksheet document types
+    marksheet_types = [
+        {"docType": "SSCMRK", "name": "10th Marksheet", "category": "Secondary"},
+        {"docType": "HSCMRK", "name": "12th Marksheet", "category": "Higher Secondary"},
+        {"docType": "DIGMRK", "name": "Degree Marksheet", "category": "Undergraduate"},
+        {"docType": "DIGCER", "name": "Degree Certificate", "category": "Undergraduate"},
+        {"docType": "PGCER", "name": "Post Graduate Certificate", "category": "Post Graduate"},
+        {"docType": "PGMRK", "name": "Post Graduate Marksheet", "category": "Post Graduate"},
+    ]
+    
+    logger.info(f"[MARKSHEET] Fetching marksheets for request ID: {request_id}")
+    
+    # First, check which documents are available
+    try:
+        status_url = f"{DIGILOCKER_BASE_URL}/{request_id}/status"
+        status_res = requests.get(status_url, headers=DIGILOCKER_HEADERS, timeout=10)
+        status_res.raise_for_status()
+        status_data = status_res.json()
+        
+        if status_data.get("status") != "authenticated":
+            return jsonify({
+                'success': False,
+                'message': 'User has not completed authentication',
+                'status': status_data.get("status")
+            }), 400
+        
+        consented_documents = status_data.get("scope", [])
+        logger.info(f"[MARKSHEET] Consented documents: {consented_documents}")
+        
+    except Exception as e:
+        logger.error(f"[MARKSHEET] Failed to check status: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to verify authentication status',
+            'error': str(e)
+        }), 500
+    
+    # Fetch marksheets
+    fetched = []
+    failed = []
+    
+    for marksheet in marksheet_types:
+        doc_type = marksheet["docType"]
+        
+        # Only try to fetch if user consented to this document type
+        if doc_type not in consented_documents:
+            logger.info(f"[MARKSHEET] Skipping {doc_type} - not in consented scope")
+            continue
+        
+        try:
+            payload = {
+                "docType": doc_type,
+                "format": doc_format,
+                "consent": "Y"
+            }
+            
+            fetch_url = f"{DIGILOCKER_BASE_URL}/{request_id}/document"
+            logger.info(f"[MARKSHEET] Fetching {marksheet['name']} ({doc_type})")
+            
+            fetch_res = requests.post(
+                fetch_url,
+                json=payload,
+                headers=DIGILOCKER_HEADERS,
+                timeout=30
+            )
+            
+            if fetch_res.status_code == 200:
+                doc_data = fetch_res.json()
+                
+                result = {
+                    'docType': doc_type,
+                    'name': marksheet['name'],
+                    'category': marksheet['category'],
+                    'format': doc_format,
+                    'data': doc_data,
+                    'success': True
+                }
+                
+                # Extract file data if PDF
+                if doc_format == 'pdf':
+                    if 'file' in doc_data:
+                        result['fileData'] = doc_data['file']
+                    if 'url' in doc_data:
+                        result['fileUrl'] = doc_data['url']
+                
+                fetched.append(result)
+                logger.info(f"[MARKSHEET] ✓ Successfully fetched {marksheet['name']}")
+                
+                # Save to database
+                if db_session:
+                    try:
+                        user_email = session.get('user', 'unknown')
+                        
+                        # Check if document verification record exists
+                        doc_verification = db_session.query(DocumentVerification).filter_by(
+                            user_email=user_email
+                        ).first()
+                        
+                        if not doc_verification:
+                            doc_verification = DocumentVerification(
+                                user_email=user_email,
+                                status='in_progress'
+                            )
+                            db_session.add(doc_verification)
+                        
+                        # Store marksheet data in a JSON field (you may need to add this column)
+                        # For now, just log
+                        logger.info(f"[DB] Marksheet fetched for user: {user_email} - {doc_type}")
+                        
+                    except Exception as e:
+                        logger.error(f"[DB] Failed to save marksheet fetch: {e}")
+            else:
+                failed.append({
+                    'docType': doc_type,
+                    'name': marksheet['name'],
+                    'error': f"HTTP {fetch_res.status_code}",
+                    'message': fetch_res.text
+                })
+                logger.warning(f"[MARKSHEET] ✗ Failed to fetch {marksheet['name']}: {fetch_res.status_code}")
+                
+        except Exception as e:
+            failed.append({
+                'docType': doc_type,
+                'name': marksheet['name'],
+                'error': str(e)
+            })
+            logger.error(f"[MARKSHEET] ✗ Error fetching {marksheet['name']}: {e}")
+    
+    return jsonify({
+        'success': len(fetched) > 0,
+        'requestId': request_id,
+        'format': doc_format,
+        'totalFetched': len(fetched),
+        'totalFailed': len(failed),
+        'marksheets': fetched,
+        'errors': failed,
+        'message': f"Successfully fetched {len(fetched)} marksheet(s)"
+    })
 
 
 @app.route('/esign/initiate', methods=['POST'])
