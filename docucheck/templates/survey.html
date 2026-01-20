@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Employee Details Form - DocuCheck</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec4899",
+                        "primary-hover": "#db2777",
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#111621",
+                        "slate-custom": {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem"},
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #fb923c 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .form-input, .form-select, .form-textarea {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+            outline: none;
+        }
+        .required-mark {
+            color: #ef4444;
+        }
+        .section-header {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md px-6 py-3 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="size-8 flex items-center justify-center bg-pink-500/10 rounded-lg text-pink-600">
+                <span class="material-symbols-outlined text-2xl">shield_person</span>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">DocuCheck</h2>
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+                <button onclick="window.location.href='/logout'" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-lg">logout</span> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center py-10 px-4 md:px-8">
+        <div class="w-full max-w-4xl">
+
+            <div class="mb-4">
+                <div class="flex items-center justify-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">PAN</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Aadhaar</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Documents</span>
+                    </div>
+                     <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Bank</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 font-semibold text-sm">5</div>
+                        <span class="text-sm font-medium text-gray-700">Survey</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+                <!-- Form Header -->
+                <div class="mb-8 text-center">
+                    <h1 class="text-3xl font-bold section-header mb-2">Onboarding Form</h1>
+                    <p class="text-slate-600">Please fill out all required fields marked with <span class="required-mark">*</span></p>
+                </div>
+
+                <!-- Alert Container -->
+                <div id="alertContainer" class="mb-6"></div>
+
+                <form id="employeeForm" enctype="multipart/form-data" class="space-y-8">
+                    <!-- Personal Information Section -->
+                    <div class="border-l-4 border-pink-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-pink-600">person</span>
+                            Personal Information
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Email-Id <span class="required-mark">*</span>
+                                </label>
+                                <input type="email" name="email" required 
+                                    class="form-input w-full" placeholder="your.email@example.com"
+                                    value="{{ data.email if data else '' }}" readonly>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Phone Number <span class="required-mark">*</span>
+                                </label>
+                                <input type="tel" name="phone" required pattern="[0-9]{10}"
+                                    class="form-input w-full" placeholder="10-digit mobile number">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    PAN Number <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="pan_number" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                    class="form-input w-full uppercase" placeholder="ABCDE1234F"
+                                    value="{{ data.pan_number if data else '' }}" readonly>
+                            </div>
+
+
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Date of Birth <span class="required-mark">*</span>
+                                </label>
+                                <input type="date" name="dob" required 
+                                    class="form-input w-full"
+                                    value="{{ data.dob if data else '' }}" readonly>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Mother's Name <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="mother_name" required 
+                                    class="form-input w-full" placeholder="Enter mother's full name">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Father's Name <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="father_name" required 
+                                    class="form-input w-full" placeholder="Enter father's full name">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Blood Group <span class="required-mark">*</span>
+                                </label>
+                                <select name="blood_group" required class="form-select w-full">
+                                    <option value="">Select blood group</option>
+                                    <option value="A+">A Positive (A+)</option>
+                                    <option value="A-">A Negative (A-)</option>
+                                    <option value="B+">B Positive (B+)</option>
+                                    <option value="B-">B Negative (B-)</option>
+                                    <option value="AB+">AB Positive (AB+)</option>
+                                    <option value="AB-">AB Negative (AB-)</option>
+                                    <option value="O+">O Positive (O+)</option>
+                                    <option value="O-">O Negative (O-)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Marital Status <span class="required-mark">*</span>
+                                </label>
+                                <select name="marital_status" required class="form-select w-full">
+                                    <option value="">Select marital status</option>
+                                    <option value="Unmarried">Unmarried</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Divorcee">Divorcee</option>
+                                </select>
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <!-- Education Section -->
+                    <div class="border-l-4 border-blue-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-600">school</span>
+                            Education Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Highest Qualification <span class="required-mark">*</span>
+                                </label>
+                                <select name="highest_qualification" required class="form-select w-full">
+                                    <option value="">Select qualification</option>
+                                    <option value="BA">Bachelor of Arts (BA)</option>
+                                    <option value="BSc">Bachelor of Science (BSc)</option>
+                                    <option value="BE/BTech">Bachelor of Engineering (B.E./B.Tech)</option>
+                                    <option value="BCom">Bachelor of Commerce (B.Com)</option>
+                                    <option value="MBA">Master of Business Administration (MBA)</option>
+                                    <option value="MTech">Master of Technology (M.Tech)</option>
+                                    <option value="PGDM">Post Graduate Diploma in Management (PGDM)</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Highest Qualification Document <span class="required-mark">*</span>
+                                </label>
+                                <input type="file" name="qualification_document" required accept=".pdf,.jpg,.jpeg,.png"
+                                    class="form-input w-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Details Section -->
+                    <div class="border-l-4 border-green-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-green-600">account_balance</span>
+                            Bank Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Bank Name <span class="required-mark">*</span>
+                                </label>
+                                <select name="bank_name" required class="form-select w-full" disabled>
+                                    <option value="">Select bank</option>
+                                    <option value="ICICI Bank" {% if data and data.bank_name == 'ICICI Bank' %}selected{% endif %}>ICICI Bank</option>
+                                    <option value="Kotak Mahindra Bank" {% if data and data.bank_name == 'Kotak Mahindra Bank' %}selected{% endif %}>Kotak Mahindra Bank</option>
+                                    <option value="HSBC Bank" {% if data and data.bank_name == 'HSBC Bank' %}selected{% endif %}>HSBC Bank</option>
+                                    <option value="Axis Bank" {% if data and data.bank_name == 'Axis Bank' %}selected{% endif %}>Axis Bank</option>
+                                    <option value="Bank of India" {% if data and data.bank_name == 'Bank of India' %}selected{% endif %}>Bank of India</option>
+                                    <option value="Bank of Baroda" {% if data and data.bank_name == 'Bank of Baroda' %}selected{% endif %}>Bank of Baroda</option>
+                                    <option value="State Bank of India" {% if data and data.bank_name == 'State Bank of India' %}selected{% endif %}>State Bank of India</option>
+                                    <option value="HDFC" {% if data and data.bank_name == 'HDFC' %}selected{% endif %}>HDFC</option>
+                                    <option value="Yes Bank" {% if data and data.bank_name == 'Yes Bank' %}selected{% endif %}>Yes Bank</option>
+                                    <option value="Punjab National Bank" {% if data and data.bank_name == 'Punjab National Bank' %}selected{% endif %}>Punjab National Bank</option>
+                                    <option value="Union Bank of India" {% if data and data.bank_name == 'Union Bank of India' %}selected{% endif %}>Union Bank of India</option>
+                                    <option value="Canara Bank" {% if data and data.bank_name == 'Canara Bank' %}selected{% endif %}>Canara Bank</option>
+                                    <option value="Other" {% if data and data.bank_name == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Bank Account Number <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="bank_account_number" required 
+                                    class="form-input w-full" placeholder="Enter account number"
+                                    value="{{ data.bank_account_number if data else '' }}" readonly>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Bank IFSC Code <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="bank_ifsc" required pattern="[A-Z]{4}0[A-Z0-9]{6}"
+                                    class="form-input w-full uppercase" placeholder="ABCD0123456"
+                                    value="{{ data.bank_ifsc if data else '' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Details Section -->
+                    <div class="border-l-4 border-purple-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-600">home</span>
+                            Address Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Permanent Address <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="permanent_address" required rows="3"
+                                    class="form-textarea w-full" placeholder="Enter complete permanent address" readonly>{{ data.permanent_address if data else '' }}</textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Current Address <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="current_address" required rows="3"
+                                    class="form-textarea w-full" placeholder="Enter complete current address"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Emergency Contact Number <span class="required-mark">*</span>
+                                </label>
+                                <input type="tel" name="emergency_contact" required pattern="[0-9]{10}"
+                                    class="form-input w-full" placeholder="10-digit contact number">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insurance Details Section -->
+                    <div class="border-l-4 border-orange-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-orange-600">health_and_safety</span>
+                            Insurance Details
+                        </h2>
+                        
+                        <div id="dependents-container">
+                            <!-- First Dependent -->
+                            <div class="dependent-group mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-md font-semibold text-slate-800">Dependent 1</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Relation <span class="required-mark">*</span>
+                                        </label>
+                                        <select name="insurance_dependent_relation[]" required class="form-select w-full">
+                                            <option value="">Select relation</option>
+                                            <option value="Spouse">Spouse</option>
+                                            <option value="Daughter">Daughter</option>
+                                            <option value="Son">Son</option>
+                                            <option value="Father">Father</option>
+                                            <option value="Mother">Mother</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Name <span class="required-mark">*</span>
+                                        </label>
+                                        <input type="text" name="insurance_dependent_name[]" required 
+                                            class="form-input w-full" placeholder="Enter dependent's name">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Date of Birth <span class="required-mark">*</span>
+                                        </label>
+                                        <input type="date" name="insurance_dependent_dob[]" required 
+                                            class="form-input w-full">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="addDependent()" 
+                            class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl">add_circle</span>
+                            Add Another Dependent
+                        </button>
+                    </div>
+
+                    <!-- PF & Pension Details Section -->
+                    <div class="border-l-4 border-indigo-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-600">savings</span>
+                            PF & Pension Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Universal Account Number (UAN)
+                                </label>
+                                <input type="text" name="uan" pattern="[0-9]{12}"
+                                    class="form-input w-full" placeholder="12-digit UAN"
+                                    value="{{ data.uan if data else '' }}" {% if data and data.uan %}readonly{% endif %}>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Resignation Acceptance/Relieving Letter <span class="required-mark">*</span>
+                                </label>
+                                <input type="file" name="relieving_letter" required accept=".pdf,.jpg,.jpeg,.png"
+                                    class="form-input w-full">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    PF: Name of Nominee <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="pf_nominee_name" required 
+                                    class="form-input w-full" placeholder="Enter nominee name">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    PF: Address of Nominee <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="pf_nominee_address" required rows="2"
+                                    class="form-textarea w-full" placeholder="Enter nominee address"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    PF: Relationship with Nominee <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="pf_nominee_relationship" required 
+                                    class="form-input w-full" placeholder="e.g., Spouse, Parent">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Share of PF accumulations (%) <span class="required-mark">*</span>
+                                </label>
+                                <input type="number" name="pf_nominee_share" required min="0" max="100"
+                                    class="form-input w-full" placeholder="Enter percentage">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    If nominee is minor: Guardian details <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="pf_minor_guardian_details" required rows="2"
+                                    class="form-textarea w-full" placeholder="Enter guardian name, relationship & address or write 'N/A'"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Name of family member for widow/children pension <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="pension_member_name" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    DOB of family member for pension <span class="required-mark">*</span>
+                                </label>
+                                <input type="date" name="pension_member_dob" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Relationship with family member <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="pension_member_relationship" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Name for monthly widow pension <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="widow_pension_name" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    DOB for monthly widow pension <span class="required-mark">*</span>
+                                </label>
+                                <input type="date" name="widow_pension_dob" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Relationship for widow pension <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="widow_pension_relationship" required 
+                                    class="form-input w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Earlier member of EPF Scheme, 1952? <span class="required-mark">*</span>
+                                </label>
+                                <div class="flex gap-4 mt-2">
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="epf_member" value="Yes" required class="text-pink-600">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="epf_member" value="No" required class="text-pink-600">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Earlier member of EPS Scheme, 1995? <span class="required-mark">*</span>
+                                </label>
+                                <div class="flex gap-4 mt-2">
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="eps_member" value="Yes" required class="text-pink-600">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="radio" name="eps_member" value="No" required class="text-pink-600">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Previous Employment Section -->
+                    <div class="border-l-4 border-teal-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-teal-600">work_history</span>
+                            Previous Employment Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Previous Establishment Name and Address <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="previous_establishment" required rows="2"
+                                    class="form-textarea w-full" placeholder="Enter previous company name and address"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    PF Number / Member EPS Account Number <span class="required-mark">*</span>
+                                </label>
+                                <input type="text" name="previous_pf_number" required 
+                                    class="form-input w-full" placeholder="Enter PF/EPS account number">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Previous Employment Date of Joining <span class="required-mark">*</span>
+                                </label>
+                                <input type="date" name="previous_joining_date" required 
+                                    class="form-input w-full"
+                                    value="{{ data.previous_joining_date if data else '' }}">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Previous Employment Date of Exit 
+                                </label>
+                                <input type="date" name="previous_exit_date" 
+                                    class="form-input w-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center pt-6">
+                        <button type="submit" 
+                            class="px-8 py-4 bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-700 hover:to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span>Save & Continue</span>
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/60 dark:bg-slate-custom-900/60 backdrop-blur-sm border-t border-slate-custom-200 dark:border-slate-custom-800 py-6 px-4 md:px-8 mt-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                <p>&copy; 2026 DocuCheck Inc. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            showAlert('info', 'Submitting form...');
+
+            try {
+                const response = await fetch('/submit-survey', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', 'Data saved! Redirecting to final step...');
+                    setTimeout(() => {
+                        window.location.href = result.redirect || '/survey-additional';
+                    }, 1500);
+                } else {
+                    showAlert('error', result.error || 'Failed to submit form');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', 'Failed to submit form. Please try again.');
+            }
+        });
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const colors = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error: 'bg-red-50 border-red-200 text-red-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                info: 'info'
+            };
+
+            const alert = document.createElement('div');
+            alert.className = `${colors[type]} border-2 rounded-xl p-4 flex items-center gap-3 animate-fade-in`;
+            alert.innerHTML = `
+                <span class="material-symbols-outlined">${icons[type]}</span>
+                <p class="text-sm font-medium flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Insurance Dependent Management
+        let dependentCount = 1;
+
+        function addDependent() {
+            dependentCount++;
+            const container = document.getElementById('dependents-container');
+            
+            const dependentDiv = document.createElement('div');
+            dependentDiv.className = 'dependent-group mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200';
+            dependentDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-md font-semibold text-slate-800">Dependent ${dependentCount}</h3>
+                    <button type="button" onclick="removeDependent(this)" 
+                        class="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm font-medium">
+                        <span class="material-symbols-outlined text-xl">delete</span>
+                        Remove
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Relation <span class="required-mark">*</span>
+                        </label>
+                        <select name="insurance_dependent_relation[]" required class="form-select w-full">
+                            <option value="">Select relation</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Daughter">Daughter</option>
+                            <option value="Son">Son</option>
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Name <span class="required-mark">*</span>
+                        </label>
+                        <input type="text" name="insurance_dependent_name[]" required 
+                            class="form-input w-full" placeholder="Enter dependent's name">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Date of Birth <span class="required-mark">*</span>
+                        </label>
+                        <input type="date" name="insurance_dependent_dob[]" required 
+                            class="form-input w-full">
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(dependentDiv);
+        }
+
+        function removeDependent(button) {
+            const dependentGroup = button.closest('.dependent-group');
+            dependentGroup.remove();
+            
+            // Renumber remaining dependents
+            const allDependents = document.querySelectorAll('.dependent-group h3');
+            allDependents.forEach((heading, index) => {
+                heading.textContent = `Dependent ${index + 1}`;
+            });
+            dependentCount = allDependents.length;
+        }
+    </script>
+</body>
+</html>
+                   
+          

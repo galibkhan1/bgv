@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Data Privacy Consent - DocuCheck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#195de6",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "slate-50": "#f8fafc",
+                        "slate-100": "#f1f5f9",
+                        "slate-200": "#e2e8f0",
+                        "slate-300": "#cbd5e1",
+                        "slate-400": "#94a3b8",
+                        "slate-500": "#64748b",
+                        "slate-600": "#475569",
+                        "slate-700": "#334155",
+                        "slate-800": "#1e293b",
+                        "slate-900": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #fb923c 100%);
+        }
+        
+        .legal-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+        .legal-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        .legal-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+        }
+        .legal-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #66438f 100%);
+        }
+        
+        .error-message {
+            display: none;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+            animation: slideDown 0.3s ease-out;
+        }
+        .error-message.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gradient-border {
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #ec4899 0%, #f472b6 100%) border-box;
+            border: 2px solid transparent;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            border-color: #ec4899;
+        }
+        
+        .signature-input:focus {
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+            border-color: #ec4899;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #ec4899 0%, #f472b6 100%);
+            box-shadow: 0 2px 10px rgba(236, 72, 153, 0.3);
+        }
+        
+        .icon-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+    <script>
+        // Scroll to top on page load/refresh
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.addEventListener('beforeunload', function() {
+            window.scrollTo(0, 0);
+        });
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-200">
+    <div class="flex min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header -->
+        <header class="glass-effect sticky top-0 z-10 flex w-full items-center justify-between border-b border-white/20 px-3 py-1.5 lg:px-8 shadow-lg">
+            <div class="flex items-center gap-3 animate-in">
+                <div class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg icon-bounce">
+                    <span class="material-symbols-outlined text-xl">verified_user</span>
+                </div>
+                <h2 class="text-xl font-bold bg-gradient-to-r from-pink-600 to-pink-500 bg-clip-text text-transparent">DocuCheck</h2>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex flex-1 justify-center py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex w-full max-w-[700px] flex-col gap-6 animate-in">
+
+                <!-- Page Heading -->
+                <div class="flex flex-col gap-1.5 text-center md:text-left glass-effect p-3 rounded-lg shadow-xl border border-white/30">
+                    <div class="flex items-center gap-1.5 justify-center md:justify-start">
+                        <span class="material-symbols-outlined text-base bg-gradient-to-r from-pink-600 to-pink-500 bg-clip-text text-transparent">security</span>
+                        <h1 class="text-sm font-bold bg-gradient-to-r from-pink-600 to-pink-500 bg-clip-text text-transparent md:text-base">Data Privacy & Consent</h1>
+                    </div>
+                    <p class="text-[10px] text-slate-600 font-medium">Please review how we handle your data before proceeding with the background verification.</p>
+                </div>
+
+                <!-- Trust Features Grid -->
+                <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <div class="glass-effect card-hover flex flex-col items-start gap-1.5 rounded-md border border-white/30 p-2 shadow-xl">
+                        <div class="rounded bg-gradient-to-br from-pink-500 to-pink-600 p-1 text-white shadow-lg">
+                            <span class="material-symbols-outlined block text-sm">shield</span>
+                        </div>
+                        <div>
+                            <h3 class="text-[9px] font-bold text-slate-900 mb-0.5">256-bit Encryption</h3>
+                            <p class="text-[8px] text-slate-600 leading-tight">Banking-grade data security protocols.</p>
+                        </div>
+                    </div>
+                    <div class="glass-effect card-hover flex flex-col items-start gap-1.5 rounded-md border border-white/30 p-2 shadow-xl">
+                        <div class="rounded bg-gradient-to-br from-pink-400 to-pink-500 p-1 text-white shadow-lg">
+                            <span class="material-symbols-outlined block text-sm">lock</span>
+                        </div>
+                        <div>
+                            <h3 class="text-[9px] font-bold text-slate-900 mb-0.5">Authorized Access</h3>
+                            <p class="text-[8px] text-slate-600 leading-tight">Restricted to designated specialists only.</p>
+                        </div>
+                    </div>
+                    <div class="glass-effect card-hover flex flex-col items-start gap-1.5 rounded-md border border-white/30 p-2 shadow-xl">
+                        <div class="rounded bg-gradient-to-br from-rose-500 to-pink-500 p-1 text-white shadow-lg">
+                            <span class="material-symbols-outlined block text-sm">description</span>
+                        </div>
+                        <div>
+                            <h3 class="text-[9px] font-bold text-slate-900 mb-0.5">ISO 27001 Compliant</h3>
+                            <p class="text-[8px] text-slate-600 leading-tight">Certified information security standards.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message"></div>
+
+                <!-- Legal Contract Card -->
+                <form id="consentForm">
+                    <div class="glass-effect flex flex-col overflow-hidden rounded-2xl border border-white/30 shadow-2xl">
+                        <div class="bg-gradient-to-r from-pink-600 to-pink-500 px-5 py-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">gavel</span>
+                                Terms of Service & Authorization
+                            </h3>
+                        </div>
+                        <div class="legal-scroll h-[280px] overflow-y-auto p-5 text-[10px] leading-relaxed text-slate-700 bg-gradient-to-b from-white to-slate-50">
+                            
+                            <p class="mb-3 leading-relaxed">
+                                I hereby authorize DocuCheck and its designated agents to conduct a comprehensive review of my background through a consumer report and/or an investigative consumer report to be generated for employment, promotion, reassignment or retention as an employee.
+                            </p>
+                            <p class="mb-3 leading-relaxed">
+                                I understand that the scope of the consumer report/investigative consumer report may include, but is not limited to, the following areas: verification of social security number; current and previous residences; employment history, education background, character references; drug testing, civil and criminal history records from any criminal justice agency in any or all federal, state, county jurisdictions; driving records, birth records, and any other public records.
+                            </p>
+                            <p class="mb-3 leading-relaxed">
+                                I further authorize any individual, company, firm, corporation, or public agency (including the Social Security Administration and law enforcement agencies) to divulge any and all information, verbal or written, pertaining to me, to DocuCheck or its agents. I further authorize the complete release of any records or data pertaining to me which the individual, company, firm, corporation, or public agency may have, to include information or data received from other sources.
+                            </p>
+                            <p class="mb-3 leading-relaxed">
+                                I hereby release DocuCheck, the Social Security Administration, and its agents, officials, representative, or assigned agencies, including officers, employees, or related personnel both individually and collectively, from any and all liability for damages of whatever kind, which may, at any time, result to me, my heirs, family, or associates because of compliance with this authorization and request to release.
+                            </p>
+                            <p class="leading-relaxed">
+                                I understand that this authorization will remain valid for the duration of my employment or contract, if hired, to the extent permitted by applicable law.
+                            </p>
+                        </div>
+
+                        <!-- Signature & Actions -->
+                        <div class="glass-effect border-t border-slate-200/50 p-5">
+                            <div class="mb-5 space-y-4">
+                                <label class="flex cursor-pointer items-start gap-3 p-3 rounded-lg hover:bg-pink-50/50 transition-all duration-300 group">
+                                    <input id="agreeCheckbox" class="mt-0.5 size-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" type="checkbox" required/>
+                                    <span class="text-[10px] text-slate-700 group-hover:text-slate-900 transition-colors leading-relaxed">
+                                        I confirm that I have read, understood, and agreed to the <a class="font-semibold text-pink-600 hover:text-pink-700 hover:underline transition-colors" href="#">Terms of Service</a>, <a class="font-semibold text-pink-600 hover:text-pink-700 hover:underline transition-colors" href="#">Privacy Policy</a>, and Electronic Signature Disclosure.
+                                    </span>
+                                </label>
+                                <div class="grid gap-2">
+                                    <label class="text-[10px] font-semibold text-slate-800 flex items-center gap-1.5" for="signature">
+                                        <span class="material-symbols-outlined text-pink-600 text-sm">draw</span>
+                                        Digital Signature
+                                    </label>
+                                    <input id="signature" class="signature-input w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-2 text-xs text-slate-900 placeholder-slate-400 shadow-sm focus:border-pink-500 focus:outline-none transition-all duration-300 font-medium" placeholder="Type your full legal name" type="text" required/>
+                                    <p class="text-[10px] text-slate-500 flex items-center gap-1.5 pl-1">
+                                        <span class="material-symbols-outlined text-xs">info</span>
+                                        By typing your name above, you are electronically signing this document.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between sm:items-center">
+                                <button type="button" onclick="window.location.href='/logout'" class="rounded-lg px-6 py-2 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-2 border-slate-200 transition-all duration-300">
+                                    Decline
+                                </button>
+                                <div class="flex items-center gap-3">
+                                    <div class="hidden items-center gap-1.5 text-[10px] text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-lg sm:flex">
+                                        <span class="material-symbols-outlined text-xs text-green-600">lock</span>
+                                        <span class="font-medium">Secure 256-bit Connection</span>
+                                    </div>
+                                    <button type="submit" id="submitBtn" class="btn-gradient flex items-center justify-center gap-2 rounded-lg px-8 py-2 text-xs font-bold text-white focus:outline-none focus:ring-4 focus:ring-pink-300 transition-all w-full sm:w-auto">
+                                        <span>I Agree & Continue</span>
+                                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const consentForm = document.getElementById('consentForm');
+        const errorDiv = document.getElementById('errorMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        const signatureInput = document.getElementById('signature');
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearError() {
+            errorDiv.classList.remove('show');
+        }
+
+        consentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearError();
+
+            const signature = signatureInput.value.trim();
+            const agreed = agreeCheckbox.checked;
+
+            if (!agreed) {
+                showError('Please check the agreement box to continue.');
+                return;
+            }
+
+            if (!signature) {
+                showError('Please provide your digital signature.');
+                return;
+            }
+
+            if (signature.length < 3) {
+                showError('Please enter your full legal name.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.querySelector('span').textContent = 'Processing...';
+
+            try {
+                const response = await fetch('/submit-consent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        signature: signature,
+                        agreed: agreed
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    showError(data.error || 'Failed to submit consent. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('span').textContent = 'I Agree & Continue';
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.querySelector('span').textContent = 'I Agree & Continue';
+            }
+        });
+    </script>
+</body>
+</html>

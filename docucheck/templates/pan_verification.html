@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PAN Validation Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Theme Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec4899",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                        "slate": {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #fb923c 100%);
+        }
+    </style>
+</head>
+<body class="text-slate-900 dark:text-white font-display antialiased overflow-x-hidden min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md px-6 py-3 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="size-8 flex items-center justify-center bg-pink-500/10 rounded-lg text-pink-600">
+                <span class="material-symbols-outlined text-2xl">shield_person</span>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">DocuCheck</h2>
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+                <button onclick="window.location.href='/logout'" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-lg">logout</span> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow layout-container flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-6xl flex flex-col gap-6">
+
+            <!-- Progress Steps -->
+            <div class="mb-4">
+                <div class="flex items-center justify-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-sm">1</div>
+                        <span class="text-sm font-medium text-white-400">PAN</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 font-semibold text-sm">2</div>
+                        <span class="text-sm font-medium text-white-400">Aadhaar</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 font-semibold text-sm">3</div>
+                        <span class="text-sm font-medium text-white-400">Documents</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 font-semibold text-sm">4</div>
+                        <span class="text-sm font-medium text-white-400">Bank</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Heading -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg">
+                <div>
+                    <h1 class="text-sm font-black tracking-tight text-slate-900 dark:text-white">PAN Verification</h1>
+                    <p class="mt-0.5 text-slate-600 dark:text-slate-400 text-xs">Verify candidate tax identity securely against official records.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
+                <!-- LEFT COLUMN: Main Verification Card -->
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    <!-- Input Card -->
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-slate-700 overflow-hidden">
+                        <div class="h-2 bg-gradient-to-r from-pink-600 to-pink-500"></div>
+                        <div class="p-6 sm:p-8">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Verify Permanent Account Number</h3>
+                            <p class="text-slate-500 dark:text-slate-400 mb-8 text-sm">Enter the 10-character alphanumeric PAN to fetch details instantly from the Income Tax Department database.</p>
+                            
+                            <!-- Error/Success Message -->
+                            <div id="messageBox" class="hidden mb-6 p-4 rounded-lg"></div>
+                            
+                            <form id="panForm" class="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                                <div class="flex-1 w-full">
+                                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="pan-input">PAN Number</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                            <span class="material-symbols-outlined">badge</span>
+                                        </div>
+                                        <input class="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-600 rounded-lg leading-5 bg-white dark:bg-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 sm:text-base font-mono uppercase tracking-wide transition-shadow" 
+                                               id="pan-input" 
+                                               name="pan" 
+                                               placeholder="ABCDE1234F" 
+                                               type="text" 
+                                               maxlength="10"/>
+                                    </div>
+                                    <p class="mt-2 text-xs text-slate-400">Format: 5 Letters, 4 Digits, 1 Letter (e.g. ABCDE1234F)</p>
+                                </div>
+                                <button id="verifyBtn" class="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 min-w-[160px]" type="submit">
+                                    <span>Fetch Details</span>
+                                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Results Container -->
+                    <div id="resultsContainer" class="hidden">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+                            Verification Result
+                        </h3>
+                        <div id="resultCard"></div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Sidebar (Tips & Info) -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Tips Card -->
+                    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-pink-600">lightbulb</span> 
+                            Validation Guidelines
+                        </h4>
+                        <ul class="space-y-4">
+                            <li class="flex gap-3 items-start">
+                                <span class="flex-shrink-0 size-5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 flex items-center justify-center text-xs font-bold">1</span>
+                                <p class="text-sm text-slate-600 dark:text-slate-300">
+                                    Enter the PAN exactly as printed on the official PAN card, without extra spaces or characters.
+                                </p>
+                            </li>
+                            <li class="flex gap-3 items-start">
+                                <span class="flex-shrink-0 size-5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 flex items-center justify-center text-xs font-bold">2</span>
+                                <p class="text-sm text-slate-600 dark:text-slate-300">
+                                    Ensure the PAN format is correct (5 letters, 4 numbers, 1 letter) before submitting for verification.
+                                </p>
+                            </li>
+                            <li class="flex gap-3 items-start">
+                                <span class="flex-shrink-0 size-5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 flex items-center justify-center text-xs font-bold">3</span>
+                                <p class="text-sm text-slate-600 dark:text-slate-300">
+                                    This tool verifies PAN validity and authenticity only; it does not modify PAN details.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+
+
+            
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const panForm = document.getElementById('panForm');
+        const panInput = document.getElementById('pan-input');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const messageBox = document.getElementById('messageBox');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultCard = document.getElementById('resultCard');
+
+        // Auto-uppercase PAN input
+        panInput.addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase();
+        });
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `mb-6 p-4 rounded-lg ${
+                type === 'error' 
+                    ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800' 
+                    : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+            }`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => messageBox.classList.add('hidden'), 5000);
+        }
+
+        function displayResult(data, success, inputPan) {
+            resultsContainer.classList.remove('hidden');
+            
+            console.log('Display result data:', data); // Debug log
+            
+            if (success) {
+                // Extract data from various possible response formats
+                const panData = data.data || data;
+                const fullName = panData.full_name || panData.name || panData.fullName || 
+                               panData.registered_name || panData.registeredName || 
+                               panData.first_name || panData.firstName || 'N/A';
+                const panNumber = inputPan || panData.pan_number || panData.pan || panData.panNumber || 'N/A';
+                const status = panData.pan_status || panData.status || panData.valid || 'Active';
+                
+                resultCard.innerHTML = `
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full p-1.5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-lg">check_circle</span>
+                                </div>
+                                <span class="font-bold text-emerald-700 dark:text-emerald-400">Verified Successfully</span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-mono">${new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Registered Name</p>
+                                <p class="text-base font-medium text-slate-900 dark:text-white">${fullName}</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">PAN Number</p>
+                                    <p class="text-sm text-slate-900 dark:text-white font-mono">${panNumber}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Status</p>
+                                    <p class="text-sm text-slate-900 dark:text-white">${status === true ? 'Valid' : (status === false ? 'Invalid' : status)}</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                                <button onclick="window.location.href='/aadhaar-verification'" class="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-700 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                                    <span>Start Aadhaar Card Verification</span>
+                                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultCard.innerHTML = `
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full p-1.5 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-lg">error</span>
+                                </div>
+                                <span class="font-bold text-rose-700 dark:text-rose-400">Verification Failed</span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-mono">${new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-rose-50 dark:bg-rose-900/20 rounded-lg p-3 border border-rose-100 dark:border-rose-800/50">
+                                <p class="text-sm text-rose-800 dark:text-rose-300">
+                                    ${data.message || 'Records indicate this PAN number does not exist or has been deactivated.'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        panForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const pan = panInput.value.trim().toUpperCase();
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+            
+            if (!pan) {
+                showMessage('Please enter a PAN number', 'error');
+                return;
+            }
+            
+            if (!panRegex.test(pan)) {
+                showMessage('Invalid PAN format. Use format: ABCDE1234F', 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span>Verifying...</span><span class="material-symbols-outlined text-lg animate-spin">progress_activity</span>';
+            
+            try {
+                const response = await fetch('/verify-pan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pan: pan })
+                });
+                
+                const data = await response.json();
+                console.log('API Response:', response.status, data); // Debug log
+                
+                if (response.ok) {
+                    // Check if verification was successful
+                    const isValid = data.success !== false && data.status !== 'INVALID' && 
+                                  (data.data || data.full_name || data.name || data.pan_number || data.pan);
+                    
+                    if (isValid) {
+                        showMessage('PAN verified successfully!', 'success');
+                        displayResult(data, true, pan);
+                    } else {
+                        showMessage(data.message || 'PAN verification failed', 'error');
+                        displayResult(data, false, pan);
+                    }
+                } else {
+                    showMessage(data.error || data.message || 'Verification failed', 'error');
+                    displayResult(data, false, pan);
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+                console.error('Error:', error);
+            } finally {
+                // Re-enable button
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '<span>Fetch Details</span><span class="material-symbols-outlined text-lg">arrow_forward</span>';
+            }
+        });
+    </script>
+</body>
+</html>

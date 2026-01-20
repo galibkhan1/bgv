@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Verification Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated Document Background */
+        .document-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .document {
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.2;
+            animation: float 15s infinite ease-in-out;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        }
+        
+        .document:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 20s;
+        }
+        
+        .document:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            animation-delay: 2s;
+            animation-duration: 18s;
+        }
+        
+        .document:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            animation-delay: 4s;
+            animation-duration: 22s;
+        }
+        
+        .document:nth-child(4) {
+            top: 30%;
+            left: 70%;
+            animation-delay: 1s;
+            animation-duration: 19s;
+        }
+        
+        .document:nth-child(5) {
+            top: 50%;
+            left: 5%;
+            animation-delay: 3s;
+            animation-duration: 21s;
+        }
+        
+        .document:nth-child(6) {
+            top: 15%;
+            left: 85%;
+            animation-delay: 5s;
+            animation-duration: 17s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-10px) translateX(-10px) rotate(-5deg);
+            }
+            75% {
+                transform: translateY(-30px) translateX(5px) rotate(3deg);
+            }
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        
+        .login-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .otp-btn {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .otp-btn:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .otp-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .demo-credentials h3 {
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .demo-credentials p {
+            color: #666;
+            margin: 4px 0;
+        }
+        
+        .demo-credentials code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2a5298;
+        }
+        
+        .login-header h1 {
+            color: #1e3c72;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Document Background -->
+    <div class="document-bg">
+        <div class="document">📄</div>
+        <div class="document">📋</div>
+        <div class="document">📃</div>
+        <div class="document">📑</div>
+        <div class="document">🗂️</div>
+        <div class="document">📝</div>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 Login</h1>
+            <p>Access Verification Portal</p>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
+            </div>
+            
+            <button type="button" class="otp-btn" id="generateOtpBtn">Generate OTP</button>
+            
+            <div class="form-group hidden" id="otpGroup">
+                <label for="otp">Enter OTP</label>
+                <input type="text" id="otp" name="otp" maxlength="6" placeholder="Enter 6-digit OTP">
+            </div>
+            
+            <button type="submit" class="login-btn hidden" id="verifyOtpBtn">Verify & Login</button>
+        </form>
+        
+        <div class="demo-credentials">
+            <h3>📧 Enter Your Email Address</h3>
+            <p><small>No registration needed! Simply enter your email to receive an OTP.</small></p>
+             </div>
+    </div>
+    
+    <script>
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        const emailInput = document.getElementById('email');
+        const otpInput = document.getElementById('otp');
+        const generateOtpBtn = document.getElementById('generateOtpBtn');
+        const otpGroup = document.getElementById('otpGroup');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const loginForm = document.getElementById('loginForm');
+        
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            successDiv.classList.remove('show');
+        }
+        
+        function showSuccess(message) {
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            errorDiv.classList.remove('show');
+        }
+        
+        function clearMessages() {
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+        }
+        
+        // Generate OTP
+        generateOtpBtn.addEventListener('click', async function() {
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                showError('Please enter your email address');
+                return;
+            }
+            
+            clearMessages();
+            generateOtpBtn.disabled = true;
+            generateOtpBtn.textContent = 'Generating...';
+            
+            try {
+                const response = await fetch('/generate-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(data.message || 'OTP sent successfully! Check your email.');
+                    otpGroup.classList.remove('hidden');
+                    verifyOtpBtn.classList.remove('hidden');
+                    generateOtpBtn.textContent = 'Resend OTP';
+                    otpInput.focus();
+                } else {
+                    showError(data.error || 'Failed to generate OTP');
+                    generateOtpBtn.textContent = 'Generate OTP';
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+                generateOtpBtn.textContent = 'Generate OTP';
+            } finally {
+                generateOtpBtn.disabled = false;
+            }
+        });
+        
+        // Verify OTP and Login
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const otp = otpInput.value.trim();
+            
+            if (!otp) {
+                showError('Please enter the OTP');
+                return;
+            }
+            
+            clearMessages();
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+            
+            try {
+                const response = await fetch('/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, otp })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Invalid OTP. Please try again.');
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.textContent = 'Verify & Login';
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify & Login';
+            }
+        });
+        
+        // Allow only numbers in OTP input
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>

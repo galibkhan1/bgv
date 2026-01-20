@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Additional Details - DocuCheck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec4899",
+                        "background-light": "#fafafa",
+                        "background-dark": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #fb923c 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .required-mark {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .form-input, .form-select, .form-textarea {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #ec4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+            outline: none;
+        }
+        .section-header {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md px-6 py-3 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="size-8 flex items-center justify-center bg-pink-500/10 rounded-lg text-pink-600">
+                <span class="material-symbols-outlined text-2xl">shield_person</span>
+            </div>
+            <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">DocuCheck</h2>
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+                <button onclick="window.location.href='/logout'" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-lg">logout</span> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <!-- Progress Steps -->
+            <div class="mb-8">
+                <div class="flex items-center justify-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">PAN</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Aadhaar</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Documents</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Bank</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-sm">6</div>
+                        <span class="text-sm font-medium text-gray-700">Final Details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer" class="mb-6"></div>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold section-header mb-2">Additional Details</h1>
+                    <p class="text-slate-600 text-sm">Final step - complete your profile</p>
+                </div>
+
+                <form id="additionalForm" class="space-y-8">
+                    <!-- Joining Banner Details Section -->
+                    <div class="border-l-4 border-rose-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-rose-600">celebration</span>
+                            Joining Banner Details
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Hobbies
+                                </label>
+                                <input type="text" name="hobbies" 
+                                    class="form-input w-full" placeholder="e.g., Reading, Photography, Traveling">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    One fun fact about you
+                                </label>
+                                <input type="text" name="fun_fact" 
+                                    class="form-input w-full" placeholder="Share something interesting about yourself">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    A favourite quote
+                                </label>
+                                <input type="text" name="favourite_quote" 
+                                    class="form-input w-full" placeholder="Your favourite quote or motto">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Your dream in life <span class="required-mark">*</span>
+                                </label>
+                                <textarea name="dream_in_life" required rows="3"
+                                    class="form-textarea w-full" placeholder="Share your aspirations and dreams"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Miscellaneous Section -->
+                    <div class="border-l-4 border-cyan-500 pl-6">
+                        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-cyan-600">more_horiz</span>
+                            Additional Information
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    T-shirt Size <span class="required-mark">*</span>
+                                </label>
+                                <select name="tshirt_size" required class="form-select w-full">
+                                    <option value="">Select size</option>
+                                    <option value="XS">XS</option>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                    <option value="XXXL">XXXL</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Is car parking facility required? <span class="required-mark">*</span>
+                                </label>
+                                <select name="parking_required" required class="form-select w-full">
+                                    <option value="">Select option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Passport Size Photo <span class="required-mark">*</span>
+                                </label>
+                                <input type="file" name="passport_photo" required accept="image/*"
+                                    class="form-input w-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center pt-6">
+                        <button type="submit" 
+                            class="px-8 py-4 bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-700 hover:to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                            <span>Submit All Details</span>
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/60 backdrop-blur-sm border-t border-slate-200 py-6 px-4 md:px-8 mt-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-600">
+                <p>&copy; 2026 DocuCheck Inc. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-pink-600 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-pink-600 transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-pink-600 transition-colors">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('additionalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            showAlert('info', 'Submitting final details...');
+
+            try {
+                const response = await fetch('/submit-additional-details', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', 'All details submitted successfully! Verification complete.');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showAlert('error', result.error || 'Failed to submit details');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', 'Failed to submit details. Please try again.');
+            }
+        });
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const colors = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error: 'bg-red-50 border-red-200 text-red-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                info: 'info'
+            };
+
+            const alert = document.createElement('div');
+            alert.className = `${colors[type]} border-2 rounded-xl p-4 flex items-center gap-3 animate-fade-in`;
+            alert.innerHTML = `
+                <span class="material-symbols-outlined">${icons[type]}</span>
+                <p class="text-sm font-medium flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

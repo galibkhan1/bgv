@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Document Verification - DocuCheck</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec4899",
+                        "primary-hover": "#db2777",
+                        "background-light": "#f8f9fc",
+                        "background-dark": "#111621",
+                        "slate-custom": {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem"},
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #fb923c 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .upload-box:hover {
+            border-color: #ec4899;
+            background-color: #fdf2f8;
+        }
+        .upload-box.dragover {
+            border-color: #ec4899;
+            background-color: #fce7f3;
+        }
+        .file-uploaded {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        .required-badge {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        .optional-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+    </style>
+</head>
+<body class="text-slate-custom-800 dark:text-white antialiased min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-custom-200 dark:border-slate-700 bg-white/90 dark:bg-slate-custom-900/90 backdrop-blur-md px-6 lg:px-10 py-3 sticky top-0 z-50">
+        <div class="flex items-center gap-3 text-slate-custom-900 dark:text-white">
+            <div class="flex items-center justify-center size-8 bg-pink-500/10 rounded-lg text-pink-600">
+                <span class="material-symbols-outlined filled text-2xl">verified_user</span>
+            </div>
+            <h2 class="text-slate-custom-900 dark:text-white text-lg font-bold leading-tight tracking-tight">DocuCheck</h2>
+        </div>
+        <div class="flex items-center gap-6">
+            <button onclick="window.location.href='/logout'" class="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-lg">logout</span>
+                <span class="hidden sm:inline">Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center py-10 px-4 md:px-8">
+        <div class="w-full max-w-4xl flex flex-col gap-8">
+            <!-- Progress Steps -->
+            <div class="mb-4">
+                <div class="flex items-center justify-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">PAN</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-green-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-sm">check</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Aadhaar</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-pink-500"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-sm">3</div>
+                        <span class="text-sm font-medium text-white-600">Documents</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 font-semibold text-sm">4</div>
+                        <span class="text-sm font-medium text-white-400">Bank</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Title -->
+            <div class="flex flex-col gap-2 text-center md:text-left bg-white/60 dark:bg-slate-custom-800/60 backdrop-blur-sm p-4 rounded-lg">
+                <h1 class="text-slate-custom-900 dark:text-white text-2xl font-bold tracking-tight">Upload Your Documents</h1>
+                <p class="text-slate-custom-600 dark:text-slate-custom-400 text-sm font-normal">
+                    Please upload your highest qualification certificate (mandatory) and other supporting documents
+                </p>
+            </div>
+
+            <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Document Upload Cards -->
+        <div class="space-y-6">
+            <!-- Highest Qualification Certificate (Mandatory) -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-xl shadow-card p-6 md:p-8 border border-slate-custom-200 dark:border-slate-custom-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-600 to-pink-500"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-2xl">school</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-custom-900 dark:text-white">Highest Qualification Certificate</h3>
+                            <p class="text-sm text-slate-custom-500 dark:text-slate-custom-400 mt-1">Upload your degree, diploma, or highest educational certificate</p>
+                        </div>
+                    </div>
+                    <span class="required-badge text-white text-xs font-semibold px-3 py-1 rounded-full">REQUIRED</span>
+                </div>
+
+                <input type="file" id="qualificationFile" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect('qualification', this)">
+                <div class="upload-box rounded-xl p-8 text-center cursor-pointer" id="qualificationUploadBox" onclick="document.getElementById('qualificationFile').click()">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">upload_file</span>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Click to upload or drag and drop</p>
+                    <p class="text-xs text-gray-500">PDF, JPG, JPEG, or PNG (Max 10MB)</p>
+                </div>
+
+                <div id="qualificationPreview" class="mt-4 hidden">
+                    <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+                        <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900" id="qualificationFileName"></p>
+                            <p class="text-xs text-gray-600">Uploaded successfully</p>
+                        </div>
+                        <button type="button" onclick="reUploadFile('qualification')" class="text-blue-600 hover:text-blue-700 mr-2" title="Replace file">
+                            <span class="material-symbols-outlined">upload</span>
+                        </button>
+                        <button type="button" onclick="removeFile('qualification')" class="text-red-600 hover:text-red-700" title="Delete file">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last Company Offer Letter (Optional) -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-xl shadow-card p-6 md:p-8 border border-slate-custom-200 dark:border-slate-custom-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-600 to-pink-500"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-2xl">work</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-custom-900 dark:text-white">Last Company Offer Letter</h3>
+                            <p class="text-sm text-slate-custom-500 dark:text-slate-custom-400 mt-1">Upload your most recent company offer letter</p>
+                        </div>
+                    </div>
+                    <span class="optional-badge text-white text-xs font-semibold px-3 py-1 rounded-full">OPTIONAL</span>
+                </div>
+
+                <input type="file" id="offerLetterFile" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect('offer_letter', this)">
+                <div class="upload-box rounded-xl p-8 text-center cursor-pointer" id="offerLetterUploadBox" onclick="document.getElementById('offerLetterFile').click()">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-3">upload_file</span>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Click to upload or drag and drop</p>
+                    <p class="text-xs text-gray-500">PDF, JPG, JPEG, or PNG (Max 10MB)</p>
+                </div>
+
+                <div id="offerLetterPreview" class="mt-4 hidden">
+                    <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+                        <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900" id="offerLetterFileName"></p>
+                            <p class="text-xs text-gray-600">Uploaded successfully</p>
+                        </div>
+                        <button type="button" onclick="reUploadFile('offer_letter')" class="text-blue-600 hover:text-blue-700 mr-2" title="Replace file">
+                            <span class="material-symbols-outlined">upload</span>
+                        </button>
+                        <button type="button" onclick="removeFile('offer_letter')" class="text-red-600 hover:text-red-700" title="Delete file">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Last 3 Months Salary Slips (Optional) -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-xl shadow-card p-6 md:p-8 border border-slate-custom-200 dark:border-slate-custom-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-600 to-pink-500"></div>
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-2xl">receipt_long</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-custom-900 dark:text-white">Last 3 Months Salary Slips</h3>
+                            <p class="text-sm text-slate-custom-500 dark:text-slate-custom-400 mt-1">Upload up to 3 recent salary slips</p>
+                        </div>
+                    </div>
+                    <span class="optional-badge text-white text-xs font-semibold px-3 py-1 rounded-full">OPTIONAL</span>
+                </div>
+
+                <!-- Salary Slip 1 -->
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-slate-custom-700 dark:text-slate-custom-300 mb-2 block">Salary Slip 1</label>
+                    <input type="file" id="salarySlip1File" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect('salary_slip_1', this)">
+                    <div class="upload-box rounded-xl p-6 text-center cursor-pointer" id="salarySlip1UploadBox" onclick="document.getElementById('salarySlip1File').click()">
+                        <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">upload_file</span>
+                        <p class="text-xs font-medium text-gray-700">Click to upload</p>
+                    </div>
+                    <div id="salarySlip1Preview" class="mt-3 hidden">
+                        <div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                            <span class="material-symbols-outlined text-green-600">check_circle</span>
+                            <div class="flex-1">
+                                <p class="text-xs font-medium text-gray-900" id="salarySlip1FileName"></p>
+                            </div>
+                            <button type="button" onclick="reUploadFile('salary_slip_1')" class="text-blue-600 hover:text-blue-700 mr-2" title="Replace file">
+                                <span class="material-symbols-outlined text-sm">upload</span>
+                            </button>
+                            <button type="button" onclick="removeFile('salary_slip_1')" class="text-red-600 hover:text-red-700" title="Delete file">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Slip 2 -->
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-slate-custom-700 dark:text-slate-custom-300 mb-2 block">Salary Slip 2</label>
+                    <input type="file" id="salarySlip2File" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect('salary_slip_2', this)">
+                    <div class="upload-box rounded-xl p-6 text-center cursor-pointer" id="salarySlip2UploadBox" onclick="document.getElementById('salarySlip2File').click()">
+                        <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">upload_file</span>
+                        <p class="text-xs font-medium text-gray-700">Click to upload</p>
+                    </div>
+                    <div id="salarySlip2Preview" class="mt-3 hidden">
+                        <div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                            <span class="material-symbols-outlined text-green-600">check_circle</span>
+                            <div class="flex-1">
+                                <p class="text-xs font-medium text-gray-900" id="salarySlip2FileName"></p>
+                            </div>
+                            <button type="button" onclick="reUploadFile('salary_slip_2')" class="text-blue-600 hover:text-blue-700 mr-2" title="Replace file">
+                                <span class="material-symbols-outlined text-sm">upload</span>
+                            </button>
+                            <button type="button" onclick="removeFile('salary_slip_2')" class="text-red-600 hover:text-red-700" title="Delete file">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Salary Slip 3 -->
+                <div>
+                    <label class="text-sm font-medium text-slate-custom-700 dark:text-slate-custom-300 mb-2 block">Salary Slip 3</label>
+                    <input type="file" id="salarySlip3File" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect('salary_slip_3', this)">
+                    <div class="upload-box rounded-xl p-6 text-center cursor-pointer" id="salarySlip3UploadBox" onclick="document.getElementById('salarySlip3File').click()">
+                        <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">upload_file</span>
+                        <p class="text-xs font-medium text-gray-700">Click to upload</p>
+                    </div>
+                    <div id="salarySlip3Preview" class="mt-3 hidden">
+                        <div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                            <span class="material-symbols-outlined text-green-600">check_circle</span>
+                            <div class="flex-1">
+                                <p class="text-xs font-medium text-gray-900" id="salarySlip3FileName"></p>
+                            </div>
+                            <button type="button" onclick="reUploadFile('salary_slip_3')" class="text-blue-600 hover:text-blue-700 mr-2" title="Replace file">
+                                <span class="material-symbols-outlined text-sm">upload</span>
+                            </button>
+                            <button type="button" onclick="removeFile('salary_slip_3')" class="text-red-600 hover:text-red-700" title="Delete file">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                    <button type="button" id="proceedToBank" class="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-700 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Continue to Bank Verification</span>
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </button>
+        </div>
+
+      
+
+        <!-- Spacer for visual separation -->
+        <div class="flex items-center gap-4 py-2 mt-8">
+            <div class="h-px flex-1 bg-slate-custom-200 dark:bg-slate-custom-700"></div>
+            <span class="text-xs font-semibold text-slate-custom-100 uppercase tracking-widest">Verifications Status</span>
+            <div class="h-px flex-1 bg-slate-custom-200 dark:bg-slate-custom-700"></div>
+        </div>
+
+        <!-- Status Cards (Grid Layout) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- PAN Card - Success -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-lg p-5 border border-green-200 dark:border-green-900 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+                <div class="absolute inset-y-0 left-0 w-1 bg-green-500"></div>
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                            <span class="material-symbols-outlined text-xl">check_circle</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-custom-900 dark:text-white">PAN Card</h4>
+                            <p class="text-xs text-slate-custom-500 dark:text-slate-custom-400">Verified</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aadhaar - Success -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-lg p-5 border border-green-200 dark:border-green-900 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+                <div class="absolute inset-y-0 left-0 w-1 bg-green-500"></div>
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                            <span class="material-symbols-outlined text-xl">check_circle</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-custom-900 dark:text-white">Aadhaar Card</h4>
+                            <p class="text-xs text-slate-custom-500 dark:text-slate-custom-400">Verified</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents - Pending/Success -->
+            <div id="documentsStatusCard" class="bg-white dark:bg-slate-custom-800 rounded-lg p-5 border border-amber-200 dark:border-amber-900 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+                <div class="absolute inset-y-0 left-0 w-1 bg-amber-500"></div>
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            <span class="material-symbols-outlined text-xl">pending</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-custom-900 dark:text-white">Documents</h4>
+                            <p class="text-xs text-slate-custom-500 dark:text-slate-custom-400">Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Account - Pending -->
+            <div class="bg-white dark:bg-slate-custom-800 rounded-lg p-5 border border-slate-custom-200 dark:border-slate-custom-700 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+                <div class="absolute inset-y-0 left-0 w-1 bg-slate-custom-300 dark:bg-slate-custom-600"></div>
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-slate-custom-100 dark:bg-slate-custom-700 flex items-center justify-center text-slate-custom-400 dark:text-slate-custom-500">
+                            <span class="material-symbols-outlined text-xl">schedule</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-custom-900 dark:text-white">Bank Account</h4>
+                            <p class="text-xs text-slate-custom-500 dark:text-slate-custom-400">Not Started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+          <!-- Info Note -->
+        <div class="mt-8 bg-white/60 dark:bg-slate-custom-800/60 backdrop-blur-sm border border-pink-200 dark:border-pink-500/30 rounded-xl p-4 md:p-6">
+            <div class="flex gap-3">
+                <span class="material-symbols-outlined text-pink-600 dark:text-pink-500">info</span>
+                <div>
+                    <h4 class="text-sm font-semibold text-slate-custom-900 dark:text-white mb-2">Important Notes:</h4>
+                    <ul class="text-xs text-slate-custom-700 dark:text-slate-custom-300 space-y-1 list-disc list-inside">
+                        <li>Highest qualification certificate is <strong>mandatory</strong> to proceed to bank verification</li>
+                        <li>Offer letter and salary slips are optional but recommended for faster verification</li>
+                        <li>All documents must be in PDF, JPG, JPEG, or PNG format</li>
+                        <li>Maximum file size: 10MB per document</li>
+                        <li>Ensure documents are clear and readable</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/60 dark:bg-slate-custom-900/60 backdrop-blur-sm border-t border-slate-custom-200 dark:border-slate-custom-800 py-6 px-4 md:px-8 mt-auto">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-custom-600 dark:text-slate-custom-400">
+                <p>&copy; 2024 Verification System. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-pink-600 dark:hover:text-pink-500 transition-colors">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Track uploaded documents
+        const uploadedDocs = {
+            qualification: {% if existing_docs and existing_docs.qualification_certificate_filename %}'{{ existing_docs.qualification_certificate_filename }}'{% else %}null{% endif %},
+            offer_letter: {% if existing_docs and existing_docs.offer_letter_filename %}'{{ existing_docs.offer_letter_filename }}'{% else %}null{% endif %},
+            salary_slip_1: {% if existing_docs and existing_docs.salary_slip_1_filename %}'{{ existing_docs.salary_slip_1_filename }}'{% else %}null{% endif %},
+            salary_slip_2: {% if existing_docs and existing_docs.salary_slip_2_filename %}'{{ existing_docs.salary_slip_2_filename }}'{% else %}null{% endif %},
+            salary_slip_3: {% if existing_docs and existing_docs.salary_slip_3_filename %}'{{ existing_docs.salary_slip_3_filename }}'{% else %}null{% endif %}
+        };
+
+        console.log('Loaded documents:', uploadedDocs);
+
+        // Convert snake_case to camelCase for element IDs
+        function getElementId(docType) {
+            const idMap = {
+                'qualification': 'qualification',
+                'offer_letter': 'offerLetter',
+                'salary_slip_1': 'salarySlip1',
+                'salary_slip_2': 'salarySlip2',
+                'salary_slip_3': 'salarySlip3'
+            };
+            return idMap[docType] || docType;
+        }
+
+        // Initialize page
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, initializing...');
+            
+            // Check if user is coming back from bank page
+            const cameFromBank = document.referrer.includes('/bank-verification');
+            console.log('Came from bank page:', cameFromBank);
+            console.log('Current referrer:', document.referrer);
+            
+            if (cameFromBank) {
+                console.log('User came back from bank page - clearing documents');
+                
+                // Delete all documents from server (async, don't wait)
+                fetch('/delete-all-documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(result => {
+                      console.log('Documents cleared from server:', result);
+                  })
+                  .catch(error => {
+                      console.error('Error clearing documents:', error);
+                  });
+                
+                // Clear all uploaded documents in memory
+                uploadedDocs.qualification = null;
+                uploadedDocs.offer_letter = null;
+                uploadedDocs.salary_slip_1 = null;
+                uploadedDocs.salary_slip_2 = null;
+                uploadedDocs.salary_slip_3 = null;
+                
+                // Hide all previews and reset file inputs
+                const docElements = [
+                    {id: 'qualification', previewId: 'qualificationPreview', inputId: 'qualificationFile'},
+                    {id: 'offerLetter', previewId: 'offerLetterPreview', inputId: 'offerLetterFile'},
+                    {id: 'salarySlip1', previewId: 'salarySlip1Preview', inputId: 'salarySlip1File'},
+                    {id: 'salarySlip2', previewId: 'salarySlip2Preview', inputId: 'salarySlip2File'},
+                    {id: 'salarySlip3', previewId: 'salarySlip3Preview', inputId: 'salarySlip3File'}
+                ];
+                
+                docElements.forEach(doc => {
+                    const preview = document.getElementById(doc.previewId);
+                    const input = document.getElementById(doc.inputId);
+                    if (preview) preview.classList.add('hidden');
+                    if (input) input.value = '';
+                });
+                
+                // Show alert
+                showAlert('info', 'Please re-upload your documents to proceed.');
+            } else {
+                // Show existing uploads only if not coming from bank
+                console.log('Normal page load - showing existing documents');
+                Object.keys(uploadedDocs).forEach(docType => {
+                    if (uploadedDocs[docType]) {
+                        console.log(`Showing uploaded file for ${docType}:`, uploadedDocs[docType]);
+                        showUploadedFile(docType, uploadedDocs[docType]);
+                    }
+                });
+            }
+            
+            // Update button state after showing files
+            updateButtonState();
+            
+            // Add click handler for proceed button
+            const proceedBtn = document.getElementById('proceedToBank');
+            if (proceedBtn) {
+                console.log('Proceed button found, adding click handler');
+                proceedBtn.addEventListener('click', (e) => {
+                    console.log('Button clicked, disabled:', proceedBtn.disabled);
+                    if (!proceedBtn.disabled) {
+                        console.log('Navigating to bank verification...');
+                        window.location.href = '/bank-verification';
+                    } else {
+                        console.log('Button is disabled, cannot proceed');
+                        showAlert('error', 'Please upload your qualification certificate first');
+                    }
+                });
+            } else {
+                console.error('Proceed button not found!');
+            }
+        });
+
+        function handleFileSelect(docType, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file size
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('error', 'File size must be less than 10MB');
+                input.value = '';
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('error', 'Invalid file type. Please upload PDF, JPG, JPEG, or PNG');
+                input.value = '';
+                return;
+            }
+
+            // Upload file
+            uploadFile(docType, file);
+        }
+
+        async function uploadFile(docType, file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('docType', docType);
+
+            // Show loading
+            showAlert('info', `Uploading ${docType.replace(/_/g, ' ')}...`);
+
+            try {
+                const response = await fetch('/upload-document', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    uploadedDocs[docType] = result.filename;
+                    showUploadedFile(docType, result.filename);
+                    showAlert('success', `${docType.replace(/_/g, ' ')} uploaded successfully!`);
+                    updateButtonState();
+                } else {
+                    showAlert('error', result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('error', 'Failed to upload document. Please try again.');
+            }
+        }
+
+        function showUploadedFile(docType, filename) {
+            const elementId = getElementId(docType);
+            const preview = document.getElementById(`${elementId}Preview`);
+            const fileNameEl = document.getElementById(`${elementId}FileName`);
+
+            // Don't hide upload box - keep it visible for re-upload
+            // Just show the preview message below the upload box
+            if (preview) {
+                preview.classList.remove('hidden');
+                if (fileNameEl) fileNameEl.textContent = filename;
+            }
+        }
+
+        function reUploadFile(docType) {
+            const elementId = getElementId(docType);
+            const fileInput = document.getElementById(`${elementId}File`);
+            
+            if (fileInput) {
+                // Reset the input value to allow same file selection
+                fileInput.value = '';
+                // Trigger file selection dialog
+                fileInput.click();
+            } else {
+                console.error(`File input not found for ${docType} (elementId: ${elementId})`);
+            }
+        }
+
+        function removeFile(docType) {
+            uploadedDocs[docType] = null;
+            
+            const elementId = getElementId(docType);
+            const preview = document.getElementById(`${elementId}Preview`);
+            const fileInput = document.getElementById(`${elementId}File`);
+
+            // Hide the preview message
+            if (preview) preview.classList.add('hidden');
+            if (fileInput) fileInput.value = '';
+
+            updateButtonState();
+            showAlert('info', 'Document removed. Please upload again if needed.');
+        }
+
+        function updateButtonState() {
+            const proceedBtn = document.getElementById('proceedToBank');
+            // Check if qualification is uploaded (has a value that's not null)
+            const qualificationUploaded = Boolean(uploadedDocs.qualification);
+
+            console.log('updateButtonState called:', {
+                qualification: uploadedDocs.qualification,
+                type: typeof uploadedDocs.qualification,
+                qualificationUploaded: qualificationUploaded
+            });
+
+            if (qualificationUploaded) {
+                proceedBtn.disabled = false;
+                proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                console.log('Button ENABLED');
+                
+                // Update Documents status card to verified
+                updateDocumentsStatusCard(true);
+            } else {
+                proceedBtn.disabled = true;
+                proceedBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                console.log('Button DISABLED');
+                
+                // Keep Documents status card as pending
+                updateDocumentsStatusCard(false);
+            }
+        }
+
+        function updateDocumentsStatusCard(isVerified) {
+            const statusCard = document.getElementById('documentsStatusCard');
+            if (!statusCard) return;
+
+            const statusBar = statusCard.querySelector('.absolute');
+            const iconContainer = statusCard.querySelector('.size-10');
+            const icon = iconContainer.querySelector('.material-symbols-outlined');
+            const statusText = statusCard.querySelector('p');
+
+            if (isVerified) {
+                // Update to verified state
+                statusCard.classList.remove('border-amber-200', 'dark:border-amber-900');
+                statusCard.classList.add('border-green-200', 'dark:border-green-900');
+                
+                statusBar.classList.remove('bg-amber-500');
+                statusBar.classList.add('bg-green-500');
+                
+                iconContainer.classList.remove('bg-amber-50', 'dark:bg-amber-900/20', 'text-amber-600', 'dark:text-amber-400');
+                iconContainer.classList.add('bg-green-50', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400');
+                
+                icon.textContent = 'check_circle';
+                statusText.textContent = 'Verified';
+            } else {
+                // Update to pending state
+                statusCard.classList.remove('border-green-200', 'dark:border-green-900');
+                statusCard.classList.add('border-amber-200', 'dark:border-amber-900');
+                
+                statusBar.classList.remove('bg-green-500');
+                statusBar.classList.add('bg-amber-500');
+                
+                iconContainer.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400');
+                iconContainer.classList.add('bg-amber-50', 'dark:bg-amber-900/20', 'text-amber-600', 'dark:text-amber-400');
+                
+                icon.textContent = 'pending';
+                statusText.textContent = 'Pending';
+            }
+        }
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const colors = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error: 'bg-red-50 border-red-200 text-red-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                info: 'info'
+            };
+
+            const alert = document.createElement('div');
+            alert.className = `${colors[type]} border rounded-xl p-4 mb-4 flex items-center gap-3 animate-fade-in`;
+            alert.innerHTML = `
+                <span class="material-symbols-outlined">${icons[type]}</span>
+                <p class="text-sm font-medium flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Drag and drop functionality
+        document.querySelectorAll('.upload-box').forEach(box => {
+            box.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                box.classList.add('dragover');
+            });
+
+            box.addEventListener('dragleave', () => {
+                box.classList.remove('dragover');
+            });
+
+            box.addEventListener('drop', (e) => {
+                e.preventDefault();
+                box.classList.remove('dragover');
+                
+                const fileInput = box.querySelector('input[type="file"]');
+                if (fileInput && e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
